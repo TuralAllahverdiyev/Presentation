@@ -1,5 +1,8 @@
-﻿using DataAccess;
+﻿using AutoMapper;
+using DataAccess;
 using DataAccess.Entities;
+using DTO;
+using Microsoft.EntityFrameworkCore;
 using Services.Abstract;
 using System;
 using System.Collections.Generic;
@@ -9,19 +12,27 @@ using System.Threading.Tasks;
 
 namespace Services
 {
-    public class UserService:BaseService<User>, IUserService
+    public class UserService:BaseService<UserDTO, User,UserDTO>, IUserService
     {
-        public UserService(AppDbContext db) : base(db)
+        public UserService(AppDbContext db, IMapper mapper) : base(db,mapper)
         {
         }
 
-        public User Login(string ps, string us)
+        public List<UserContactsDTO> GetUserContacts()
+        {
+            var res = _db.Users.Include(x => x.Contacts).ToList();
+
+            return new List<UserContactsDTO>();
+        }
+
+        public UserDTO Login(string ps, string us)
         {
             var res = _db.Users.Where(x => x.Name == us && x.Password == ps);
 
             if (res.Count() == 1)
             {
-                return res.First();
+                var dto = _mapper.Map<User, UserDTO>(res.First());
+                return dto;
             }
             else
             {

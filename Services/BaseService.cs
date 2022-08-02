@@ -1,4 +1,5 @@
-﻿using DataAccess;
+﻿using AutoMapper;
+using DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Services.Abstract;
 using System;
@@ -14,49 +15,59 @@ namespace Services
 
     }
 
-    public class BaseService<TModel> : BaseService, IBaseService<TModel> where TModel : class
+    public class BaseService<TReq, TEntity, TRes> : BaseService, IBaseService<TReq,TEntity,TRes> where TEntity : class
     {
         protected readonly AppDbContext _db;
+        protected readonly IMapper _mapper;
 
-        protected DbSet<TModel> _dbSet;
-        public BaseService(AppDbContext db)
+        protected DbSet<TEntity> _dbSet;
+        public BaseService(AppDbContext db, IMapper mapper)
         {
             _db = db;
-            _dbSet = _db.Set<TModel>();
+            _dbSet = _db.Set<TEntity>();
+
+            _mapper = mapper;
         }
 
-        public TModel Create(TModel model)
+        public virtual TRes Create(TReq model)
         {
-            _dbSet.Add(model);
+            var ent=_mapper.Map<TReq, TEntity > (model);
+            _dbSet.Add(ent);
             _db.SaveChanges();
-            return model;
-        }
-
-        public void Delete(int id)
-        {
-            var item = Get(id);
-            _dbSet.Remove(item);
-            _db.SaveChanges();
-
-        }
-
-        public TModel Get(int id)
-        {
-            var res=_dbSet.Find(id);
-            _db.SaveChanges();
+            var res = _mapper.Map<TEntity, TRes>(ent);
             return res;
         }
 
-        public IEnumerable<TModel> Get()
+        public virtual void Delete(int id)
         {
-            return _dbSet;
+            var ent = _dbSet.Find(id);
+            _dbSet.Remove(ent);
+            _db.SaveChanges();
+
         }
 
-        public TModel Update(TModel model)
+        public virtual TRes Get(int id)
         {
-            var res=_dbSet.Update(model);
+            var ent=_dbSet.Find(id);
             _db.SaveChanges();
-            return model;
+            var res = _mapper.Map<TEntity, TRes>(ent);
+            return res;
+        }
+
+        public virtual IEnumerable<TRes> Get()
+        {
+            var ents= _dbSet.ToList();
+            var res = _mapper.Map<IEnumerable<TEntity>, IEnumerable<TRes>>(ents);
+            return res;
+        }
+
+        public virtual TRes Update(TReq model)
+        {
+            var ent = _mapper.Map<TReq, TEntity>(model);
+            _dbSet.Update(ent);
+            _db.SaveChanges();
+            var res = _mapper.Map<TEntity, TRes>(ent);
+            return res;
         }
     }
 }

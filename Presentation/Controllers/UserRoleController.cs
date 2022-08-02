@@ -11,13 +11,13 @@ namespace Presentation.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UserRoleController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly IUserRoleService _userRoleService;
 
-        public UserController(IUserService userService)
+        public UserRoleController(IUserRoleService UserRoleService)
         {
-            _userService = userService;
+            _userRoleService = UserRoleService;
         }
 
         [HttpGet]
@@ -27,7 +27,7 @@ namespace Presentation.Controllers
             try
             {
 
-                var res = _userService.Get(id);
+                var res = _userRoleService.Get(id);
 
                 if (res == null)
                 {
@@ -44,33 +44,33 @@ namespace Presentation.Controllers
         [HttpGet]
         [Route("Get")]
 
-        public IEnumerable<UserDTO> Get()
+        public IEnumerable<UserRoleDTO> Get()
         {
-            return _userService.Get();
+            return _userRoleService.Get();
         }
 
-        [HttpGet]
-        [Route("GetContacts")]
+        //[HttpGet]
+        //[Route("GetContacts")]
 
-        public IEnumerable<UserContactsDTO> GetUserContacts()
-        {
-            return _userService.GetUserContacts();
-        }
+        //public IEnumerable<UserRoleContactsDTO> GetUserRoleContacts()
+        //{
+        //    return _UserRoleService.GetUserRoleContacts();
+        //}
 
         [HttpPost]
         [Route("Create")]
 
-        public UserDTO Create([FromBody] UserDTO user)
+        public UserRoleDTO Create([FromBody] UserRoleDTO UserRole)
         {
-            return _userService.Create(user);
+            return _userRoleService.Create(UserRole);
         }
 
         [HttpPut]
         [Route("Update")]
 
-        public UserDTO Update([FromBody] UserDTO user)
+        public UserRoleDTO Update([FromBody] UserRoleDTO UserRole)
         {
-            return _userService.Update(user);
+            return _userRoleService.Update(UserRole);
         }
 
         [HttpDelete]
@@ -78,7 +78,7 @@ namespace Presentation.Controllers
 
         public void Delete([FromRoute] int id)
         {
-            _userService.Delete(id);
+            _userRoleService.Delete(id);
         }
      }
 }
